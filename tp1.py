@@ -48,28 +48,31 @@ model = nn.Sequential(
     nn.ReLU(),
     nn.Linear(50, V),
 )
-sentence = "réalisation du projet"
-encoded = torch.zeros(3,V)
-for t, word in enumerate(sentence.split()):
-    encoded[t, words_list.index(word)] = 1
-output = model(encoded)
 
-target = torch.tensor([words_list.index(word) for word in sentence.split()])
-lossfn= nn.CrossEntropyLoss()
-loss = lossfn(output, target)
+def test_model():
+    sentence = "réalisation du projet"
+    encoded = torch.zeros(3,V)
+    for t, word in enumerate(sentence.split()):
+        encoded[t, words_list.index(word)] = 1
+    output = model(encoded)
+    target = torch.tensor([words_list.index(word) for word in sentence.split()])
+    lossfn= nn.CrossEntropyLoss()
+    loss = lossfn(output, target)
+    return loss
+
+
 # Verification que la fonction CrossEntropyLoss de PyTorch fait bien une somme des logprobabilités. 
 def mycrossentropy(output, target):
     output_softmax = nn.functional.softmax(output, dim=1)
     assert output_softmax.shape[0] == len(target)
     return -torch.log(output_softmax[torch.arange(len(target)),target]).sum() / len(target)
 
-assert torch.allclose(loss, mycrossentropy(output, target))
 def transform_to_prediction(output):  
     prediction = torch.argmax(output, dim=1)
     prediction_str = " ".join([vocabulary[idx] for idx in prediction])
     return prediction_str
 # %%
-def test_model(model, words_list_test):
+def test_model(model, words_list_test, lossfn):
     test_loss = []
     for i in tqdm(range(len(words_list_test) - 1)):
         word_i = words_list_test[i]

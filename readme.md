@@ -76,10 +76,15 @@ The script automatically:
 
 ## Model Comparison
 
-### MLP Advantages
+### MLP Advantages and Results
 - Can capture more complex patterns
 - Better generalization to unseen sequences
 - Real-time training metrics via Wandb
+**First results** 
+Here are the first two training runs, showing the CrossEntropyLoss for the MLP on the bigram task, with different sizes for the MLP.
+
+![Alt Text](figs/W&B_21_12_2024.png)
+
 
 ### Probability Matrix Advantages
 - Faster training and inference
