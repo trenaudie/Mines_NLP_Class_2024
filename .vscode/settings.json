@@ -3,5 +3,17 @@
     "python.analysis.extraPaths": [
         "${workspaceFolder}",
         "${workspaceFolder}"
-    ]
+    ],
+    "terminal.integrated.defaultProfile.linux": "bash",
+    "terminal.integrated.profiles.linux": {
+        "bash": {
+            "path": "bash",
+            "icon": "terminal-bash",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}",
+                "VIRTUAL_ENV": "${workspaceFolder}/venv"
+            }
+        }
+    },
+    "terminal.integrated.cwd": "${workspaceFolder}"
 }
