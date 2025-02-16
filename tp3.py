@@ -1,8 +1,4 @@
 
-# %% [markdown]
-# ## Données sources
-
-# %%
 from sys import exit
 import torch
 import torch.nn.functional as F
@@ -147,8 +143,6 @@ class DataCollatorCustom:
     
 data_collator = DataCollatorCustom(tokenizer)
 
-
-
 def tokenize_with_tokenizer(examples: dict, tokenizer: PreTrainedTokenizerBase):
 
     outputs = tokenizer(
@@ -163,14 +157,6 @@ hg_dataset_tokenized = hg_dataset.map(
     batched=False,
     num_proc=1
 )
-#  print the first train input ids 
-print(f'first and second sample')
-print(f'input_ids = {hg_dataset_tokenized["train"]["input_ids"][0]}')
-# print(f'labels = {hg_dataset_tokenized["train"]["labels"][0]}')
-#  print the second 
-print(f'input_ids = {hg_dataset_tokenized["train"]["input_ids"][1]}')
-# print(f'labels = {hg_dataset_tokenized["train"]["labels"][1]}')
-print('\n')
 
 def MyCausalLMLoss(
     logits, labels, vocab_size: int, num_items_in_batch: int = None, ignore_index: int = -100, **kwargs
@@ -205,39 +191,12 @@ def MyCausalLMLoss(
     shift_labels = shift_labels.to(shift_logits.device)
     loss = fixed_cross_entropy(shift_logits, shift_labels, num_items_in_batch, ignore_index, **kwargs)
     return loss
-# import transformers.loss.loss_utils
-# transformers.loss.loss_utils.ForCausalLMLoss = MyCausalLMLoss
-
-# print(f'loading tensors for batch 1')
-# input_ids = torch.load('temp/input_ids.pt')
-# labels = torch.load('temp/labels.pt')
-# logits_end = torch.load('temp/logits_end.pt')
-# labels_end = torch.load('temp/labels_end.pt')
-# assert torch.allclose(labels, labels_end)
-# exit()
-
-# from transformers.loss.loss_utils import ForCausalLMLoss
-# loss = ForCausalLMLoss(logits, labels, tokenizer.vocab_size, 20) 
-# print(f'loss = {loss}')
-
-# # coding it myself
-# print(f'input_ids = {input_ids.shape}, labels = {labels.shape}, logits = {logits.shape}')
-# # input ids should have shape 4,5
-# # labels should have shape 4,5
-# # logits should have shape 4,5,32000
-# # first shift the labels 
-# print(f'input ids =\n {input_ids[:]}')
-# print(f'labels =\n {labels[:]}')
-# shift_labels = labels[..., 1:].contiguous()
-
-
-# exit()
 
 
 from typing import Callable
 from transformers import LlamaForCausalLM
 from transformers import Trainer
-from transformers.loss.loss_utils import ForCausalLMLoss # to fix
+
 print('starting trainer')
 trainer_v2 =  Trainer(
     model=smallmodel,
