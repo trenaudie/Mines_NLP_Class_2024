@@ -139,6 +139,7 @@ class DataCollatorCustom:
         print('saving tensors for batch 1')
         torch.save(input_ids_tensor, 'temp/input_ids.pt')
         torch.save(labels_tensor, 'temp/labels.pt')
+        exit()
         return returndict
     
 data_collator = DataCollatorCustom(tokenizer)
@@ -205,7 +206,7 @@ trainer_v2 =  Trainer(
     train_dataset=hg_dataset_tokenized["train"],
     eval_dataset=hg_dataset_tokenized["validation"],
 )
-trainer_v2.train()
+# trainer_v2.train()
 
 # # %%
 
