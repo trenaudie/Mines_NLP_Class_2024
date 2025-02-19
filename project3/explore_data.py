@@ -2,54 +2,18 @@
 from pathlib import Path
 import json 
 from tqdm import tqdm
-DATA_DIR = Path("project3/data")
-file = DATA_DIR.iterdir().__next__()
-str(file)
-# %%
-len(list(DATA_DIR.iterdir()))
-# %%
-from project3.get_response import get_response
-
-file = "1994-08-03_AP-auto_refonte_pixtral.html"
-file = DATA_DIR / file
-file_text= open(file, "r").read()
-# %%
-file_text
 from bs4 import BeautifulSoup
-soup = BeautifulSoup(file_text, "html.parser")
-# %%
-soup_text = soup.get_text()
-# %%
-soup_text
-# %%
+from itertools import islice
+from project3.get_response import get_response
+DATA_DIR = Path("project3/data")
 
-# %%
-from pathlib import Path
+FILTERING_PROMPT = open("project3/prompts/preprocessing_order.txt", "r").read()
+CLASSIFICATION_PROMPT = open("project3/prompts/classification_order.txt", "r").read()
 
-# select first file
-file = list(DATA_DIR.iterdir())[0]
-
-# read file
-with open(file, "r") as f:
-    text = f.read()
-print(text)
-soup = BeautifulSoup(text, "html.parser")
-# %%
-textgotten = soup.get_text()
-# %%
-print(textgotten)
-filtering_prompt = open("project3/prompts/preprocessing_order.txt", "r").read()
-full_prompt = f"{filtering_prompt}\n\n{textgotten}"
-
-# %%
-response = get_response(full_prompt)
-# %%
-import json 
 def extract_json(response:str):
     cleaned = response.replace('```json', '').replace('```', '')
     cleaned = cleaned.strip()
     return json.loads(cleaned)
-# %%
 
 
 def clean_and_parse_json(unclean_string:str):
@@ -67,23 +31,25 @@ def clean_and_parse_json(unclean_string:str):
     except json.JSONDecodeError as e:
         raise ValueError(f"Failed to parse JSON: {e}")
 
-clean_string = clean_and_parse_json(response)
 # %%
 RESULTS_DIR = Path("project3/results")
 RESULTS_DIR.mkdir(exist_ok=True)
 all_responses = dict()
-for file in DATA_DIR.iterdir():
+for file in tqdm(islice(DATA_DIR.iterdir(), 1,2)):
+    print(f'Processing {file.name}')
     with open(file, "r") as f:
         text = f.read()
     soup = BeautifulSoup(text, "html.parser")
     textgotten = soup.get_text()
-    full_filtered_prompt = f"{filtering_prompt}\n\n{textgotten}"
+    full_filtered_prompt = f"{FILTERING_PROMPT}\n\n{textgotten}"
     response = get_response(full_filtered_prompt)
     obj = extract_json(response)
-    full_classification_prompt = f"{classification_prompt}\n\n{obj}"
+    full_classification_prompt = f"{CLASSIFICATION_PROMPT}\n\n{obj}"
     response = get_response(full_classification_prompt)
     print(response)
     clean_response = clean_and_parse_json(response)
     all_responses[file.name] = clean_response
     with open(RESULTS_DIR / f"{file.name}_result.json", "w") as f:
         json.dump(clean_response, f)
+    break 
+# %%
