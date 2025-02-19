@@ -119,3 +119,147 @@ textgotten = soup.get_text()
 print(textgotten)
 # %%
 # remove the "Vu" lines 
+filtering_prompt = """
+You are a text extraction expert.
+You are given a text.
+Your job is to extract the text that is relevant to the classification of the prefectoral order.
+The text is a prefectoral order.
+
+It will have a structure like this:
+
+**1. Header: Document and Authority Identification**
+
+**2. Vus (Legal and Procedural Grounds)**
+
+This section demonstrates that the prefecture followed all legal procedures and consulted all stakeholders before making its decision.
+
+**3. Central Parts of the Document, Classification of the Establishment's Activities:**
+
+This section is important because it describes the activities of the establishment that are subject to authorization.
+
+**4. Main Articles (Prescriptions and Obligations)**
+
+This section contains the articles that define the operator's obligations. It can be divided into several parts:
+
+**5. Final Provisions (Notification, Publicity, Copies)**
+
+**6. Signature**
+
+*   The document is signed by the Prefect (or by delegation), attesting to the validity of the order.
+
+You will extract the parts 1 and 3, ie the header and the central parts of the document and classification of the establishment's activities.
+
+You will also extract the number of the prefectoral order if it is given, its date if it is given. 
+
+You will return the text in a json format with the following keys:
+- number: the number of the prefectoral order, if it is given, otherwise None. It may be given as a NOR number at the top of the document. It is a number in the following format NOR : 1234-56-78912
+- date: the date of the prefectoral order, if it is given, otherwise None
+- header: the header of the prefectoral order
+- central_parts: the central parts of the document and classification of the establishment's activities.
+
+You must not modify the text from the prefectoral order in any way, simply extract the information.
+Here is the prefectoral order text:
+"""
+#%%
+full_prompt = f"{filtering_prompt}\n\n{textgotten}"
+
+# %%
+response = get_response(full_prompt)
+# %%
+import json 
+def extract_json(response:str):
+    cleaned = response.replace('```json', '').replace('```', '')
+    cleaned = cleaned.strip()
+    return json.loads(cleaned)
+
+
+# %%
+obj = extract_json(response)
+obj
+# %%
+print(obj["header"])
+# %%
+print(obj["central_parts"])
+# %%
+classification_prompt = """
+You are a text classification agent. 
+You are given a prefectoral order, in the form of a json object like this:
+{
+    "number": "1234567890",
+    "date": "2024-01-01",
+    "header": "Header of the prefectoral order",
+    "central_parts": "Central parts of the prefectoral order"
+}
+Your job is to classify the prefectoral order based on its action. 
+Here are some possible actions: 
+- "authorize action" : the prefectoral order authorizes an activity from an establishment
+- "replace or modify order" : the prefectoral order replaces or modifies an existing order
+- "close or stop activity" : the prefectoral order closes or stops an activity from an establishment
+You can also return a different action, if it is not one of the above.
+
+You will return the classification output in the following json format:
+```json
+{
+
+"arrete prefectoral n° 2350-22-00082 du 12 mai 2022": {
+    "label": "authorize action",
+    "target": "S.A. ROXANE",  #target of the action
+    "establishment" : S.A ROXANE" #company being affected by the prefectoral order
+}
+
+}
+```
+where the key of the json object is a string representing the prefectoral order, in French, with the format
+"arrêté préfectoral n° [number] du [date]" with the number if it is given and the date if it is given.
+
+If the label is "replace or modify order", the target is the order, prescription or text that is being modified or replaced.
+
+Here is the prefectoral order json object:
+"""
+#%%
+full_prompt = f"{classification_prompt}\n\n{obj}"
+
+# %%
+response = get_response(full_prompt)
+# %%
+print(response)
+# %%
+
+# %%
+import json
+
+def clean_and_parse_json(unclean_string:str):
+    import re
+    cleaned_string = unclean_string.strip().strip("'").replace('\\n', '\n').replace('\\"', '"')
+
+    cleaned_string = cleaned_string.replace('```json', '').replace('```', '').strip()
+
+    cleaned_string = cleaned_string.replace('\\n', '\n').replace('\\"', '"')    
+
+    cleaned_string = re.sub(r',\s*}', '}', cleaned_string)
+    try:
+        python_object = json.loads(cleaned_string)
+        return python_object
+    except json.JSONDecodeError as e:
+        raise ValueError(f"Failed to parse JSON: {e}")
+
+clean_string = clean_and_parse_json(response)
+# %%
+RESULTS_DIR = Path("project3/results")
+RESULTS_DIR.mkdir(exist_ok=True)
+all_responses = dict()
+for file in DATA_DIR.iterdir():
+    with open(file, "r") as f:
+        text = f.read()
+    soup = BeautifulSoup(text, "html.parser")
+    textgotten = soup.get_text()
+    full_filtered_prompt = f"{filtering_prompt}\n\n{textgotten}"
+    response = get_response(full_filtered_prompt)
+    obj = extract_json(response)
+    full_classification_prompt = f"{classification_prompt}\n\n{obj}"
+    response = get_response(full_classification_prompt)
+    print(response)
+    clean_response = clean_and_parse_json(response)
+    all_responses[file.name] = clean_response
+    with open(RESULTS_DIR / f"{file.name}_result.json", "w") as f:
+        json.dump(clean_response, f)
