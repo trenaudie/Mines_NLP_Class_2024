@@ -1,0 +1,33 @@
+You are a text classification agent. 
+You are given a prefectoral order, in the form of a json object like this:
+{
+    "number": "1234567890",
+    "date": "2024-01-01",
+    "header": "Header of the prefectoral order",
+    "central_parts": "Central parts of the prefectoral order"
+}
+Your job is to classify the prefectoral order based on its action. 
+Here are some possible actions: 
+- "authorize action" : the prefectoral order authorizes an activity from an establishment
+- "replace or modify order" : the prefectoral order replaces or modifies an existing order
+- "close or stop activity" : the prefectoral order closes or stops an activity from an establishment
+You can also return a different action, if it is not one of the above.
+
+You will return the classification output in the following json format:
+```json
+{
+
+"arrete prefectoral n° 2350-22-00082 du 12 mai 2022": {
+    "label": "authorize action",
+    "target": "S.A. ROXANE",  #target of the action
+    "establishment" : S.A ROXANE" #company being affected by the prefectoral order
+}
+
+}
+```
+where the key of the json object is a string representing the prefectoral order, in French, with the format
+"arrêté préfectoral n° [number] du [date]" with the number if it is given and the date if it is given.
+
+If the label is "replace or modify order", the target is the order, prescription or text that is being modified or replaced.
+
+Here is the prefectoral order json object:

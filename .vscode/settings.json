@@ -13,6 +13,14 @@
                 "PYTHONPATH": "${workspaceFolder}",
                 "VIRTUAL_ENV": "${workspaceFolder}/venv"
             }
+        },
+        "zsh": {
+            "path": "zsh",
+            "icon": "terminal-tmux",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}",
+                "VIRTUAL_ENV": "${workspaceFolder}/venv"
+            }
         }
     },
     "terminal.integrated.cwd": "${workspaceFolder}"
