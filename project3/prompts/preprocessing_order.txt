@@ -34,7 +34,18 @@ You will return the text in a json format with the following keys:
 - date: the date of the prefectoral order, if it is given, otherwise None
 - header: the header of the prefectoral order
 - central_parts: the central parts of the document and classification of the establishment's activities.
-
+Here is an example of the output format:
+"```json
+{
+  "number": "2001-280/39-2001-A",
+  "date": "7 août 2001",
+  "header": "PRÉFECTURE DES BOUCHES-DU-RHÔNE....
+  "central_parts": "Les installations susvisées sont..." 
+}
+```"
+Be sure to add the markdown marks ` and "json" around the object. 
+You must not add any extra line before nor after the json object.
 You must not modify the text from the prefectoral order in any way, simply extract the information.
+
 Here is the prefectoral order text:
     

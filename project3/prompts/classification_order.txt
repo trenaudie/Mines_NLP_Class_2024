@@ -29,5 +29,8 @@ where the key of the json object is a string representing the prefectoral order,
 "arrêté préfectoral n° [number] du [date]" with the number if it is given and the date if it is given.
 
 If the label is "replace or modify order", the target is the order, prescription or text that is being modified or replaced.
+Else, the target is the same as the establishment, ie the name of the affected company.
 
+Do not add any information before or after the json object returned. Simply return the json object. 
+Be sure to enclose the json object in the markdown marks ` and "json". 
 Here is the prefectoral order json object:
