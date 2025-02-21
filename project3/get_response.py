@@ -6,9 +6,9 @@ import requests
 import json
 import os
 openrouter_api_key = os.getenv("OPEN_ROUTER_KEY")
-model_name = "google/gemini-2.0-flash-exp:free"
-model_name = "google/gemini-2.0-pro-exp-02-05:free"
-model_name = "meta-llama/llama-3.3-70b-instruct:free"
+model_name = "google/gemini-2.0-flash-exp:free" # hit the limit
+model_name = "google/gemini-2.0-pro-exp-02-05:free" # very slow
+model_name = "meta-llama/llama-3.3-70b-instruct:free" # very reliable!
 print(openrouter_api_key )
 
 def get_response(prompt:str) -> str:
