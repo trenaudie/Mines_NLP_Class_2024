@@ -121,3 +121,6 @@ DATASET = "codes"
 Both models output predictions for the next word given an input word, with the MLP providing probability distributions over the entire vocabulary and the probability matrix giving direct transition probabilities.
 
 
+# Projet 3
+The final pr
+View the final project 3 hand-in [here](./project3/notebook_final.ipynb).
